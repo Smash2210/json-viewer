@@ -6,6 +6,9 @@ function HomeComponent(props) {
 
   const { parseJSON, jsonInput } = props;
   const [userInput, setInput] = useState('{}');
+  const [expandMapper, toggleNode] = useState({});
+
+  let counter = 1;
 
   const updateInput = (event) => {
     setInput(event.target.value);
@@ -19,28 +22,41 @@ function HomeComponent(props) {
     }
   }
 
-  const generateTree = (input, result = [], parent, index = 0) => {
+  const toggleCollapse = (event) => {
+    const dataKey = event.target.attributes['data-key-parent'].nodeValue;
+    const updateNode = {
+      ...expandMapper,
+      [`node${dataKey}`]: !expandMapper[`node${dataKey}`]
+    }
+    toggleNode(updateNode);
+  }
+
+  const generateTree = (input, result = [], parent) => {
     for (let key in input) {
       if (input[key] === null || (!Array.isArray(input[key]) && typeof input[key] !== 'object')) {
         result.push(
-          <div key={index} style={{ position: 'relative', marginLeft: '1.5em', padding: '0.25em 0' }}>
+          <div key={counter} style={{ position: 'relative', marginLeft: '1.5em', padding: '0.25em 0' }}>
             <span className="keyElement">{key}</span> : <span className="valueElement">{String(input[key])}</span>
           </div>
         )
-        index++;
+        counter++;
       } else {
-        const nestedTree = generateTree({ ...input[key] }, [], key, index);
+        const nestedTree = generateTree({ ...input[key] }, [], key, counter++);
         result.push(nestedTree);
+        counter++;
       }
     }
     let wrapParent = null;
     if (parent) {
       wrapParent = (
-        <div key={index} style={{ position: 'relative', marginLeft: '1.5em' }}>
-          <span className="objectElement">{parent} [{[...result].length}]</span> : {([...result])}
+        <div key={counter} style={{ position: 'relative', marginLeft: '1.5em' }}>
+          <span className="objectElement" data-key-parent={counter} onClick={toggleCollapse}>{parent} [{[...result].length}]</span>
+          <span className={expandMapper[`node${counter}`] ? 'expand' : 'collapse'}>
+            : {([...result])}
+          </span>
         </div>
       );
-      index++;
+      counter++
     }
     return wrapParent || result;
   };
@@ -57,7 +73,7 @@ function HomeComponent(props) {
       </div>
       <div className="column">
         <div id="outputResult" style={{ height: '32rem', padding: '1em', border: '1px solid #dbdbdb', backgroundColor: '#fff', borderRadius: '4px', color: '#363636', overflow: 'auto' }}>
-          {generateTree(jsonInput, [], null)}
+          {generateTree({ ...jsonInput }, [], null)}
         </div>
       </div>
     </div>

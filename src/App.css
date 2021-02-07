@@ -12,3 +12,7 @@
   cursor: pointer;
   text-decoration: underline;
 }
+
+.collapse {
+  display: none;
+}
