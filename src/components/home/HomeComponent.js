@@ -21,7 +21,6 @@ function HomeComponent(props) {
 
   const generateTree = (input, result = [], parent, index = 0) => {
     for (let key in input) {
-      console.log(input[key]);
       if (input[key] === null || (!Array.isArray(input[key]) && typeof input[key] !== 'object')) {
         result.push(
           <div key={index} style={{ position: 'relative', marginLeft: '1.5em', padding: '0.25em 0' }}>
@@ -31,7 +30,6 @@ function HomeComponent(props) {
         index++;
       } else {
         const nestedTree = generateTree({ ...input[key] }, [], key, index);
-        console.log(nestedTree);
         result.push(nestedTree);
       }
     }
